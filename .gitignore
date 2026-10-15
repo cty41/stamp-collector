@@ -1,0 +1,31 @@
+# Local archives and generated output (the small sample is intentionally tracked).
+/data/
+/assets/
+/exports/
+/backups/
+/logs/
+/index.html
+/latest_offline.json
+/display_groups.json
+/runtime.json
+*.sqlite*
+*.db
+*.xlsx
+*.zip
+*错误.txt
+
+# Environments, dependencies, models and credentials.
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+*.pem
+*.key
+*.pt
+*.onnx
+.DS_Store
+Thumbs.db
