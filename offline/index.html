@@ -3,13 +3,13 @@
 <body><header><h1>邮票清单</h1><span id="stats"></span><span>离线只读</span></header>
 <main><div class="filters">
 <input type="search" id="search" aria-label="搜索邮票" placeholder="名称、志号、原观察编号">
-<select id="category" aria-label="分类"><option value="single">同款邮票</option><option value="whole">组合与整件</option><option value="other">另列邮品与非邮票</option><option value="">全部分类</option></select>
+<select id="category" aria-label="分类"><option value="single">同款邮票</option><option value="whole">组合与整件</option><option value="other">另列邮品与非邮票</option><option value="" selected>全部分类</option></select>
 <select id="topic" aria-label="题材"></select><select id="region" aria-label="地区"></select>
 <select id="identity" aria-label="辨认状态"><option value="">全部辨认状态</option><option>已确认</option><option>较可能</option><option>待确认</option></select>
 <select id="series" aria-label="套票关联"></select>
-<select id="price" aria-label="价格资料"><option value="">全部价格状态</option><option value="known">有成员参考价</option><option value="missing">无参考价</option></select>
-</div><div class="controls"><span id="count"></span><select id="sort" aria-label="排序"><option value="rarity">本批少见优先</option><option value="interest">收藏兴趣优先</option><option value="price">成员参考价降序</option><option value="id">原观察编号</option></select><button id="cards" aria-pressed="true">图片列表</button><button id="table" aria-pressed="false">表格</button><button id="reset">清除筛选</button></div>
-<p class="note">数量是照片中的本批可见数，不代表市场稀有度或已去重库存。参考价对应具体成员，不是整组总价。</p>
+<select id="price" aria-label="价格资料"><option value="">全部价格状态</option><option value="known">有可比成交参考</option><option value="missing">待估／不可比较</option></select>
+</div><div class="controls"><span id="count"></span><select id="sort" aria-label="排序"><option value="interest">收藏关注优先</option><option value="rarity">本批少见优先</option><option value="price">参考价格降序</option><option value="id">原观察编号</option></select><button id="cards" aria-pressed="true">图片列表</button><button id="table" aria-pressed="false">表格</button><button id="reset">清除筛选</button></div>
+<p class="note">收藏关注：审核证据 → 题材 → 完整性、品相、邮戳 → 同形态可见数量。数量统计覆盖本次导出的全部照片，筛选不会重算，不代表库存或市场稀有度。价格按枚／件分区，仅比较已审核的人民币成交；缺价不是零元。</p>
 <div id="list"></div><div class="pager"><button id="prev">上一页</button><span id="page"></span><button id="next">下一页</button></div></main>
 <dialog id="detail"><button id="close" aria-label="关闭详情">关闭</button><div id="detail-body"></div></dialog>
 <script src="snapshot.js"></script><script src="app.js"></script></body></html>

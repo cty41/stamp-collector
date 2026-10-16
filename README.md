@@ -13,8 +13,10 @@ It contains 12 groups and 21 observation previews from one collection. Copy the
 whole `sample` folder, not just its HTML file. Stamp names and the UI are Chinese.
 
 Same-design records share a display group; expand it to see each member.
-Sorting defaults to fewer visible examples first, then collecting interest.
-Counts may include repeated photographs: they are not inventory or market rarity.
+New exports default to reviewed collecting attention, then topic and condition.
+Visible frequency is a late tie-breaker; complete strips are not penalized by stamp count.
+The bundled sample uses the same ranking rules.
+Counts cover all exported photos, even after filtering, and may include repeated photographs: they are not inventory or market rarity.
 
 ## Run locally
 
@@ -63,3 +65,9 @@ Code: [Apache-2.0](LICENSE). This project grew from work with
 [code2k13/philately-tool](https://github.com/code2k13/philately-tool).
 No upstream model or third-party runtime is bundled. Sample stamp artwork may
 carry third-party rights; the code license does not grant rights to that artwork.
+
+Ranking evidence is optional. Run `python collection.py --root ARCHIVE init` once to upgrade an existing archive.
+Import explicit human reviews with `python evidence.py --root ARCHIVE reviews.json`.
+Only approved, revision-matched evidence applies. Old asking prices remain visible
+but are not comparable sales. See `evidence.example.json` for the review format.
+No evidence is generated automatically; missing evidence does not mean low value.

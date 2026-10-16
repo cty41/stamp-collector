@@ -21,6 +21,14 @@ class ArchiveTests(unittest.TestCase):
     def test_import_rename_and_init_are_idempotent(self):
         for _ in range(2):self.assertTrue(self.s.import_photo(data=self.img,name='renamed.png')['duplicate']);self.s.init()
         self.assertEqual(len(self.s.snapshot()['photos']),1);self.assertEqual(len(self.s.snapshot()['records']),1)
+    def test_evidence_migration_repeat_import_and_conflict(self):
+        before=self.row();r=self.row()
+        e=dict(id='test',observation_id=r['uid'],base_revision=r['revision'],review_status='pending',
+               kind='market',source='https://example.org',date='2026-10-16',basis='test',conditions={'kind':'邮票'})
+        self.s.add_attention(e);self.s.init();self.s.add_attention(e)
+        self.assertEqual(len(self.s.snapshot()['attention_evidence']),1)
+        self.assertEqual(before,self.row())
+        with self.assertRaises(Conflict):self.s.add_attention(dict(e,basis='Changed'))
     def test_recompressed_image_not_automerged(self):
         b=image_bytes(Image.new('RGB',(120,80),'#ec7a65'),'JPEG');out=self.s.import_photo(data=b,name='a.jpg')
         self.assertFalse(out['duplicate']);self.assertTrue(out['possible_duplicates']);self.assertEqual(len(self.s.snapshot()['photos']),2)

@@ -65,11 +65,30 @@ class Store:
             CREATE TABLE IF NOT EXISTS item_links(observation_id TEXT REFERENCES observations(id),item_id TEXT REFERENCES items(id),PRIMARY KEY(observation_id,item_id));
             CREATE TABLE IF NOT EXISTS lineage(parent_id TEXT REFERENCES observations(id),child_id TEXT REFERENCES observations(id),reason TEXT,PRIMARY KEY(parent_id,child_id));
             CREATE TABLE IF NOT EXISTS migrations(source_key TEXT PRIMARY KEY,report TEXT NOT NULL,created TEXT);
+            CREATE TABLE IF NOT EXISTS attention_evidence(id TEXT PRIMARY KEY,data TEXT NOT NULL,created TEXT NOT NULL);
             ''')
             c.execute("INSERT OR IGNORE INTO meta VALUES('schema_version','1')")
+            c.execute("UPDATE meta SET value='2' WHERE key='schema_version'")
         return {'root':str(self.root),'initialized':True}
     def connect(self):
         c=sqlite3.connect(self.db,timeout=60,factory=ClosingConnection);c.row_factory=sqlite3.Row;c.execute('PRAGMA foreign_keys=ON');return c
+    def add_attention(self,evidence):
+        """Append immutable, explicitly reviewed evidence; reruns are idempotent."""
+        e=dict(evidence)
+        required=('id','observation_id','base_revision','review_status','kind','source','date','basis','conditions')
+        if any(k not in e for k in required):raise ValueError('Evidence fields missing: '+', '.join(required))
+        if e['review_status'] not in ('pending','approved','rejected'):raise ValueError('Invalid review status')
+        if not isinstance(e['conditions'],dict) or not e['conditions']:raise ValueError('Explicit applicability conditions required')
+        with self.tx() as c:
+            r=c.execute('SELECT * FROM observations WHERE id=?',(e['observation_id'],)).fetchone()
+            if not r:raise ValueError('Unknown observation ID')
+            existing=c.execute('SELECT data FROM attention_evidence WHERE id=?',(e['id'],)).fetchone()
+            if existing:
+                if existing[0]!=dump(e):raise Conflict('Evidence ID already exists with different content')
+                return e['id']
+            if e['base_revision']!=r['revision']:raise Conflict('Observation changed; review evidence again')
+            c.execute('INSERT INTO attention_evidence VALUES(?,?,?)',(e['id'],dump(e),now()))
+        return e['id']
     @contextlib.contextmanager
     def tx(self):
         with LOCK,self.connect() as c:
@@ -293,6 +312,7 @@ class Store:
                 d=json.loads(r['data']);d.update(uid=r['id'],id=r['label'],revision=r['revision'],photo_uid=r['photo_id'],active=bool(r['active']));rows.append(d)
             config=json.loads(c.execute("SELECT value FROM meta WHERE key='preferences'").fetchone()[0]) if c.execute("SELECT 1 FROM meta WHERE key='preferences'").fetchone() else {'topics':[]}
             tables={t:[dict(r) for r in c.execute('SELECT * FROM '+t)] for t in ('candidates','tasks','history','varieties','variety_links','items','item_links','lineage','assets')}
+            tables['attention_evidence']=[dict(r) for r in c.execute('SELECT * FROM attention_evidence ORDER BY id')] if c.execute("SELECT 1 FROM sqlite_master WHERE name='attention_evidence'").fetchone() else []
         for r in rows:
             # Use topic selection explicitly; classification never overwrites identity/notes.
             matches=[t for t in config['topics'] if re.search(t[2],r.get('name',''))]
@@ -311,7 +331,7 @@ class Store:
         rows.sort(key=lambda r:(not r['active'],r.get('category')!='stamp',r['level'],r['topic_order'],r['series'],-r.get('set_score',0),-r.get('integrity_score',0),-r.get('condition_score',0),-r.get('postmark_score',0),r.get('observed',0),r['id']))
         for i,r in enumerate(rows,1):r['rank']=i
         counts=collections.Counter(r.get('identity','待确认') for r in rows if r.get('category')=='stamp' and r['active'])
-        return {'schema_version':1,'tool_version':VERSION,'exported_at':now(),'records':rows,'photos':photos,'frequency':sorted(frequency,key=lambda f:(f['total'],f['group'])),'counts':dict(counts),'preferences':config,**tables}
+        return {'schema_version':2,'tool_version':VERSION,'exported_at':now(),'records':rows,'photos':photos,'frequency':sorted(frequency,key=lambda f:(f['total'],f['group'])),'counts':dict(counts),'preferences':config,**tables}
     def verify(self):
         errors=[]
         with self.connect() as c:

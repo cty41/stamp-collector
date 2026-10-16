@@ -49,10 +49,10 @@ class DisplayTests(unittest.TestCase):
         self.assertFalse(self.d['warnings'])
 
     def test_quantity_before_interest_and_unknown_last(self):
-        singles = [g for g in self.d['groups'] if g['category']=='single']
+        singles = sorted([g for g in self.d['groups'] if g['category']=='single'], key=lambda g:g['rarity_rank'])
         self.assertEqual(singles, sorted(singles, key=rare_key))
         self.assertEqual(self.group('O000001')['quantity'], 3)
-        self.assertLess(self.group('O000009')['rank'], self.group('O000001')['rank'])
+        self.assertLess(self.group('O000009')['rarity_rank'], self.group('O000001')['rarity_rank'])
         self.assertIsNone(singles[-1]['quantity'])
 
     def test_distinct_faces_designs_and_whole_items(self):
@@ -90,7 +90,7 @@ class DisplayTests(unittest.TestCase):
         self.s['records'][0]['price']=5;self.s['records'][1]['price']=10
         g=self.group('O000001',build(self.s,self.config))
         self.assertEqual(g['preview'],'assets/2.jpg')
-        self.assertEqual(g['price'],10)
+        self.assertIsNone(g['price'])
         self.assertEqual(len(g['quotes']),2)
 
     def test_no_config_means_separate_records(self):

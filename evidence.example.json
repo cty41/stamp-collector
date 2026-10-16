@@ -1,0 +1,24 @@
+[
+  {
+    "id": "replace-with-a-new-evidence-id",
+    "observation_id": "replace-with-permanent-observation-uid",
+    "base_revision": 1,
+    "review_status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "kind": "market",
+    "focus": false,
+    "applicable": false,
+    "conditions": {"identity": "已确认", "kind": "邮票", "condition": "replace-with-reviewed-condition"},
+    "source": "https://example.org/replace-with-actual-source",
+    "date": "2026-10-16",
+    "basis": "Replace with identification, condition and comparable-sale evidence.",
+    "evidence_type": "成交",
+    "currency": "CNY",
+    "unit": "枚",
+    "low": null,
+    "high": null,
+    "issuance": null,
+    "issuance_scope": null
+  }
+]
